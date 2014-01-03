@@ -1,5 +1,6 @@
 import Control.Exception (tryJust)
 import Control.Monad     (guard)
+import Data.Maybe
 import Data.Time
 import GHC.IO.Handle
 import System.Console.GetOpt
@@ -40,6 +41,14 @@ options = [ Option ['f'] ["format"] (ReqArg FormatFlag "FORMAT") "date format st
           , Option ['h'] ["help"] (NoArg HelpFlag) "display usage info"
           ]
 
+formatOption :: [OptionFlag] -> String
+formatOption opts =
+    case mapMaybe toFormat opts of
+        (x:_) -> x
+        _     -> "%F %T"
+    where toFormat (FormatFlag f) = Just f
+          toFormat _              = Nothing
+
 main :: IO ()
 main = do
     cliArgs <- getArgs
@@ -55,6 +64,6 @@ main = do
                 out <- spawn (head args) (tail args)
                 hSetBinaryMode out False
                 hSetBuffering out NoBuffering
-                annotateIO "%F %T" out
+                annotateIO (formatOption opts) out
     where usageHeader = "usage: annodate [OPTIONS...] <COMMAND> [ARGS...]"
           usage = putStr $ usageInfo usageHeader options
