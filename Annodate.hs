@@ -1,7 +1,7 @@
 import Control.Exception (tryJust)
 import Control.Monad     (guard)
-import Data.Maybe
-import Data.Time
+import Data.Maybe        (mapMaybe)
+import Data.Time         (FormatTime, formatTime, getCurrentTime)
 import GHC.IO.Handle
 import System.Console.GetOpt
 import System.Environment
@@ -20,7 +20,7 @@ annotateIO :: DateFormat -> Handle -> IO ()
 annotateIO format handle = do
     input <- tryJust (guard . isEOFError) (hGetLine handle)
     case input of
-        Left _ -> return ()
+        Left  _    -> return ()
         Right line -> do
             time <- getCurrentTime
             let output = annotateLine format time line
@@ -33,8 +33,8 @@ spawn cmd args = do
     return out
 
 data OptionFlag = FormatFlag String
-          | HelpFlag
-          deriving (Eq, Show)
+                | HelpFlag
+                deriving (Eq, Show)
 
 options :: [OptDescr OptionFlag]
 options = [ Option ['f'] ["format"] (ReqArg FormatFlag "FORMAT") "date format string"
