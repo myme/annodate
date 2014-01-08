@@ -37,8 +37,8 @@ data OptionFlag = FormatFlag String
                 deriving (Eq, Show)
 
 options :: [OptDescr OptionFlag]
-options = [ Option ['f'] ["format"] (ReqArg FormatFlag "FORMAT") "date format string"
-          , Option ['h'] ["help"] (NoArg HelpFlag) "display usage info"
+options = [ Option "f" ["format"] (ReqArg FormatFlag "FORMAT") "date format string"
+          , Option "h" ["help"] (NoArg HelpFlag) "display usage info"
           ]
 
 formatOption :: [OptionFlag] -> String
@@ -53,9 +53,9 @@ main :: IO ()
 main = do
     cliArgs <- getArgs
     let (opts, args, errs) = getOpt RequireOrder options cliArgs
-    if elem HelpFlag opts
+    if HelpFlag `elem` opts
         then usage
-        else if null args || (not $ null errs)
+        else if null args || not (null errs)
             then do
                 putStrLn usageHeader
                 putStr . concat $ errs
