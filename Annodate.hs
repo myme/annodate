@@ -1,14 +1,13 @@
 import Control.Exception (tryJust)
 import Control.Monad     (guard)
 import Data.Maybe        (mapMaybe)
-import Data.Time         (FormatTime, formatTime, getCurrentTime)
+import Data.Time         (FormatTime, defaultTimeLocale, formatTime, getCurrentTime)
 import GHC.IO.Handle
 import System.Console.GetOpt
 import System.Environment
 import System.Exit
 import System.IO.Error
 import System.Process
-import System.Locale
 
 type DateFormat = String
 
