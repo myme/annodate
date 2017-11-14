@@ -22,8 +22,7 @@ annotateIO format handle = do
         Left  _    -> return ()
         Right line -> do
             time <- getCurrentTime
-            let output = annotateLine format time line
-            putStrLn output
+            putStrLn $ annotateLine format time line
             annotateIO format handle
 
 spawn :: String -> [String] -> IO Handle
