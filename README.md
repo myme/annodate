@@ -1,3 +1,3 @@
 # Annodate
 
-usage: annodate [OPTIONS...] <COMMAND> [ARGS...]
+`annodate [OPTIONS...] <COMMAND> [ARGS...]`
