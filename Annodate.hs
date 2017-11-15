@@ -6,8 +6,8 @@ import GHC.IO.Handle
 import System.Console.GetOpt
 import System.Environment
 import System.Exit
+import System.IO
 import System.IO.Error
-import System.Process
 
 type DateFormat = String
 
@@ -24,11 +24,6 @@ annotateIO format handle = do
             time <- getCurrentTime
             putStrLn $ annotateLine format time line
             annotateIO format handle
-
-spawn :: String -> [String] -> IO Handle
-spawn cmd args = do
-    (_, out, _, _) <- runInteractiveProcess cmd args Nothing Nothing
-    return out
 
 data OptionFlag = FormatFlag String
                 | HelpFlag
@@ -50,18 +45,12 @@ formatOption opts =
 main :: IO ()
 main = do
     cliArgs <- getArgs
-    let (opts, args, errs) = getOpt RequireOrder options cliArgs
+    let (opts, _, _) = getOpt RequireOrder options cliArgs
     if HelpFlag `elem` opts
         then usage
-        else if null args || not (null errs)
-            then do
-                putStrLn usageHeader
-                putStr . concat $ errs
-                exitFailure
-            else do
-                out <- spawn (head args) (tail args)
-                hSetBinaryMode out False
-                hSetBuffering out NoBuffering
-                annotateIO (formatOption opts) out
-    where usageHeader = "usage: annodate [OPTIONS...] <COMMAND> [ARGS...]"
+        else do
+            hSetBinaryMode stdin False
+            hSetBuffering stdin NoBuffering
+            annotateIO (formatOption opts) stdin
+    where usageHeader = "usage: annodate [OPTIONS...]"
           usage = putStr $ usageInfo usageHeader options
