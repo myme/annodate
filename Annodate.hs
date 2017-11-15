@@ -5,9 +5,8 @@ import Data.Time         (FormatTime, defaultTimeLocale, formatTime, getCurrentT
 import GHC.IO.Handle
 import System.Console.GetOpt
 import System.Environment
-import System.Exit
-import System.IO
-import System.IO.Error
+import System.IO       (stdin)
+import System.IO.Error (isEOFError)
 
 type DateFormat = String
 
