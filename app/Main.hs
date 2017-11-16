@@ -1,9 +1,11 @@
-import Annodate
-import Data.Maybe            (mapMaybe)
-import GHC.IO.Handle
-import System.Console.GetOpt
-import System.Environment    (getArgs)
-import System.IO             (stdin)
+import           Annodate
+import           Control.Monad         (unless)
+import           Data.Maybe            (mapMaybe)
+import           GHC.IO.Handle
+import           System.Console.GetOpt
+import           System.Environment    (getArgs)
+import           System.Exit           (exitFailure)
+import           System.IO             (stdin)
 
 data OptionFlag = FormatFlag String
                 | HelpFlag
@@ -25,7 +27,10 @@ formatOption opts =
 main :: IO ()
 main = do
     cliArgs <- getArgs
-    let (opts, _, _) = getOpt RequireOrder options cliArgs
+    let (opts, _, invalid, _) = getOpt' RequireOrder options cliArgs
+    unless (null invalid) $ do
+      putStrLn $ "Invalid options: " ++ (show invalid)
+      exitFailure
     if HelpFlag `elem` opts
         then usage
         else do
