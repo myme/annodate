@@ -1,23 +1,28 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Annodate
   ( annotateLine
   , annotateLineIO
   , annotateIO
   ) where
 
-import  Control.Exception   (tryJust)
-import  Control.Monad       (guard)
-import  Data.Time           (FormatTime, defaultTimeLocale, formatTime)
-import  Data.Time.LocalTime (getZonedTime)
-import  GHC.IO.Handle       (Handle, hGetLine)
-import  System.IO.Error     (isEOFError)
+import           Control.Exception   (tryJust)
+import           Control.Monad       (guard)
+import           Data.Text           (Text, intercalate, pack)
+import           Data.Text.IO        (hGetLine, putStrLn)
+import           Data.Time           (FormatTime, defaultTimeLocale, formatTime)
+import           Data.Time.LocalTime (getZonedTime)
+import           GHC.IO.Handle       (Handle)
+import           Prelude             hiding (putStrLn)
+import           System.IO.Error     (isEOFError)
 
 type DateFormat = String
 
-annotateLine :: FormatTime t => DateFormat -> t -> String -> String
-annotateLine format time line = timeString ++ ": " ++ line
-    where timeString = formatTime defaultTimeLocale format time
+annotateLine :: FormatTime t => DateFormat -> t -> Text -> Text
+annotateLine format time line = intercalate ": " [timeString, line]
+    where timeString = pack $ formatTime defaultTimeLocale format time
 
-annotateLineIO :: DateFormat -> String -> IO ()
+annotateLineIO :: DateFormat -> Text -> IO ()
 annotateLineIO format line = do
             time <- getZonedTime
             putStrLn $ annotateLine format time line
