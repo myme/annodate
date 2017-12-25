@@ -21,18 +21,18 @@ type DateFormat = String
 
 annotateLine :: FormatTime t => DateFormat -> t -> Text -> Text
 annotateLine format time line = T.concat [timeString, ": ", line]
-    where timeString = pack $ formatTime defaultTimeLocale format time
+  where timeString = pack $ formatTime defaultTimeLocale format time
 
 annotateLineIO :: DateFormat -> Text -> IO ()
 annotateLineIO format line = do
-            time <- getZonedTime
-            putStrLn $ annotateLine format time line
+  time <- getZonedTime
+  putStrLn $ annotateLine format time line
 
 annotateIO :: DateFormat -> Handle -> IO ()
 annotateIO format handle = do
-    input <- tryJust (guard . isEOFError) (hGetLine handle)
-    case input of
-        Left  _    -> return ()
-        Right line -> do
-          annotateLineIO format line
-          annotateIO format handle
+  input <- tryJust (guard . isEOFError) (hGetLine handle)
+  case input of
+    Left  _    -> return ()
+    Right line -> do
+      annotateLineIO format line
+      annotateIO format handle
