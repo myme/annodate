@@ -1,3 +1,3 @@
 # Annodate
 
-`<cmd> | annodate [OPTIONS...]`
+`$ <cmd> | annodate [OPTIONS...]`
