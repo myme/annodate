@@ -14,6 +14,7 @@ in haskellPackages.mkDerivation {
   # isLibrary = true;
   isExecutable = true;
   executableHaskellDepends = with haskellPackages; [
+    ansi-terminal
     old-locale
     process
     text

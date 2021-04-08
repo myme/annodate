@@ -1,38 +1,43 @@
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Annodate
-  ( annotateLine
+  ( Color(..)
   , annotateLineIO
   , annotateIO
   ) where
 
-import           Control.Exception   (tryJust)
-import           Control.Monad       (guard)
-import           Data.Text           (Text, pack)
-import qualified Data.Text           as T
-import           Data.Text.IO        (hGetLine, putStrLn)
-import           Data.Time           (FormatTime, defaultTimeLocale, formatTime)
-import           Data.Time.LocalTime (getZonedTime)
-import           GHC.IO.Handle       (Handle)
-import           Prelude             hiding (concat, putStrLn)
-import           System.IO.Error     (isEOFError)
+import Control.Exception (tryJust)
+import Control.Monad (guard)
+import Data.Text (Text, pack)
+import Data.Text.IO (hGetLine, hPutStr, hPutStrLn)
+import Data.Time (defaultTimeLocale, formatTime)
+import Data.Time.LocalTime (getZonedTime)
+import GHC.IO.Handle (Handle)
+import Prelude hiding (concat, putStrLn)
+import System.Console.ANSI
+import System.IO.Error (isEOFError)
 
 type DateFormat = String
 
-annotateLine :: FormatTime t => DateFormat -> t -> Text -> Text
-annotateLine format time line = T.concat [timeString, ": ", line]
-  where timeString = pack $ formatTime defaultTimeLocale format time
+setColor :: Handle -> Maybe Color -> IO ()
+setColor handle = \case
+  Nothing -> hSetSGR handle [Reset]
+  Just c  -> hSetSGR handle [SetColor Foreground Dull c]
 
-annotateLineIO :: DateFormat -> Text -> IO ()
-annotateLineIO format line = do
+annotateLineIO :: DateFormat -> Maybe Color -> Text -> Handle -> IO ()
+annotateLineIO format color line output = do
   time <- getZonedTime
-  putStrLn $ annotateLine format time line
+  setColor output color
+  hPutStr output $ pack $ formatTime defaultTimeLocale format time
+  setColor output Nothing
+  hPutStrLn output $ ": " <> line
 
-annotateIO :: DateFormat -> Handle -> IO ()
-annotateIO format handle = do
-  input <- tryJust (guard . isEOFError) (hGetLine handle)
-  case input of
+annotateIO :: DateFormat -> Maybe Color -> Handle -> Handle -> IO ()
+annotateIO format color input output = do
+  content <- tryJust (guard . isEOFError) (hGetLine input)
+  case content of
     Left  _    -> return ()
     Right line -> do
-      annotateLineIO format line
-      annotateIO format handle
+      annotateLineIO format color line output
+      annotateIO format color input output
