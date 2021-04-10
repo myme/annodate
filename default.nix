@@ -16,6 +16,7 @@ in haskellPackages.mkDerivation {
   executableHaskellDepends = with haskellPackages; [
     ansi-terminal
     old-locale
+    optparse-applicative
     process
     text
     time
