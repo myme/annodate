@@ -1,0 +1,12 @@
+cradle:
+  multi:
+    - path: "./"
+      config:
+        cradle:
+          cabal:
+              - path: "./app"
+                component: "annodate:exe:annodate"
+              - path: "./src"
+                component: "annodate:lib:annodate"
+              - path: "./test"
+                component: "annodate:test:annodate-test"
