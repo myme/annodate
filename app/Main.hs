@@ -7,6 +7,7 @@ import Text.Read (readMaybe)
 
 data Options = Options
   { optsColor :: Maybe Color
+  , optsNoColor :: Bool
   , optsFormat :: String
   }
 
@@ -20,9 +21,9 @@ optionsParser = Options
   <$> optional (option (eitherReader parseColor)
                 (  long "color"
                 <> short 'c'
-                <> value Magenta
-                <> help "Use colors"
+                <> help "Format using color"
                 ))
+  <*> switch (long "no-color" <> short 'C' <> help "Do not use colors")
   <*> strOption (  long "format"
                 <> short 'f'
                 <> value "%F %T"
@@ -35,4 +36,5 @@ main = do
     (fullDesc <> progDesc "Annodate - Prepend timestamps to stdio")
   hSetBinaryMode stdin False
   hSetBuffering stdin NoBuffering
-  annotateIO (optsFormat opts) (optsColor opts) stdin stdout
+  let color = optsColor opts <|> if optsNoColor opts then Nothing else Just Magenta
+  annotateIO (optsFormat opts) color stdin stdout
