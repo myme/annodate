@@ -12,7 +12,7 @@ import Data.Text (Text, pack)
 import Data.Text.IO (hGetLine, hPutStr, hPutStrLn)
 import Data.Time (defaultTimeLocale, formatTime)
 import Data.Time.LocalTime (getZonedTime)
-import GHC.IO.Handle (Handle, hSetBuffering, BufferMode(NoBuffering))
+import GHC.IO.Handle (Handle, hIsTerminalDevice)
 import Prelude hiding (getLine, concat, putStrLn)
 import System.Console.ANSI
 import System.IO.Error (isEOFError)
@@ -39,7 +39,7 @@ printAnnotatedLine format color line output = do
   setColor output Nothing
   hPutStrLn output $ ": " <> line
 
-withInactivity :: IO a -> (Int -> IO ()) -> IO () -> IO a
+withInactivity :: IO a -> (Int -> IO ()) -> (Int -> IO ()) -> IO a
 withInactivity action onTick onDone = do
   inactivity <- newMVar 0
 
@@ -52,27 +52,30 @@ withInactivity action onTick onDone = do
 
   bracket inactiveTimer killThread $ \_ -> do
     result <- action
-    withMVar inactivity $ \i ->
-      when (i > 0) onDone
+    withMVar inactivity $ \i -> when (i > 0) (onDone i)
     pure result
 
-formatDuration :: Int -> String
-formatDuration i | i == 1 = show i <> " second"
-                 | otherwise = show i <> " seconds"
+inactivityMessage :: Int -> Text
+inactivityMessage duration = "Inactive for " <> pack (formatDuration duration)
+  where formatDuration i | i == 1 = show i <> " second"
+                         | otherwise = show i <> " seconds"
 
 annotateIO :: Options -> Handle -> Handle -> IO ()
 annotateIO opts input output = do
   let getLine = tryJust (guard . isEOFError) (hGetLine input)
-      onInactive duration = do
-        hPutStr output "\r"
-        setColor output (Just White)
-        hPutStr output ("Inactive for " <> pack (formatDuration duration))
 
   content <- if optsNoCountPause opts
     then getLine
     else do
-      hSetBuffering output NoBuffering
-      withInactivity getLine onInactive (hPutStrLn output "")
+      isTTY <- hIsTerminalDevice output
+      let onTTYTick duration = do
+            hPutStr output "\r"
+            setColor output (Just White)
+            hPutStr output (inactivityMessage duration)
+      let (onInactive, onDone) = if not isTTY
+            then (const $ pure (), hPutStrLn output . inactivityMessage)
+            else (onTTYTick, const $ hPutStrLn output "")
+      withInactivity getLine onInactive onDone
 
   case content of
     Left  _    -> return ()
