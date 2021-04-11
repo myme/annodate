@@ -1,7 +1,6 @@
 module Annodate
   ( Color(..)
   , Options(..)
-  , annotateLineIO
   , annotateIO
   ) where
 
@@ -32,8 +31,8 @@ setColor handle = \case
   Nothing -> hSetSGR handle [Reset]
   Just c  -> hSetSGR handle [SetColor Foreground Dull c]
 
-annotateLineIO :: DateFormat -> Maybe Color -> Text -> Handle -> IO ()
-annotateLineIO format color line output = do
+printAnnotatedLine :: DateFormat -> Maybe Color -> Text -> Handle -> IO ()
+printAnnotatedLine format color line output = do
   time <- getZonedTime
   setColor output color
   hPutStr output $ pack $ formatTime defaultTimeLocale format time
@@ -66,6 +65,6 @@ annotateIO opts input output = do
     Left  _    -> return ()
     Right line -> do
       let color = optsColor opts <|> if optsNoColor opts then Nothing else Just Magenta
-      annotateLineIO (optsFormat opts) color line output
+      printAnnotatedLine (optsFormat opts) color line output
       annotateIO opts input output
   where getLine _ = tryJust (guard . isEOFError) (hGetLine input)
