@@ -23,6 +23,7 @@ optionsParser = Options
                 <> value "%F %T"
                 <> help "Specify timestamp format (strftime)"
                 )
+  <*> switch (long "show-pause" <> short 'p' <> help "Show pauses in input")
 
 main :: IO ()
 main = do
