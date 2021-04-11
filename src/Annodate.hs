@@ -22,7 +22,7 @@ data Options = Options
   { optsColor :: Maybe Color
   , optsNoColor :: Bool
   , optsFormat :: String
-  , optsCountPause :: Bool
+  , optsNoCountPause :: Bool
   }
 
 type DateFormat = String
@@ -57,9 +57,9 @@ inactiveTimer inactivity output = do
 annotateIO :: Options -> Handle -> Handle -> IO ()
 annotateIO opts input output = do
   inactivity <- newMVar 0
-  content <- if optsCountPause opts
-    then bracket (forkIO $ inactiveTimer inactivity output) killThread getLine
-    else getLine ()
+  content <- if optsNoCountPause opts
+    then getLine ()
+    else bracket (forkIO $ inactiveTimer inactivity output) killThread getLine
   inactiveFor <- readMVar inactivity
   when (inactiveFor > 0) $ hPutStrLn output ""
   case content of
