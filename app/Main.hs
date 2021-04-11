@@ -5,12 +5,6 @@ import Options.Applicative
 import System.IO (stdin, stdout)
 import Text.Read (readMaybe)
 
-data Options = Options
-  { optsColor :: Maybe Color
-  , optsNoColor :: Bool
-  , optsFormat :: String
-  }
-
 parseColor :: String -> Either String Color
 parseColor color = maybe (Left $ "Invalid color: " <> color) Right $ readMaybe (capitalize color)
   where capitalize (x:xs) = toUpper x : map toLower xs
@@ -36,5 +30,4 @@ main = do
     (fullDesc <> progDesc "Annodate - Prepend timestamps to stdio")
   hSetBinaryMode stdin False
   hSetBuffering stdin NoBuffering
-  let color = optsColor opts <|> if optsNoColor opts then Nothing else Just Magenta
-  annotateIO (optsFormat opts) color stdin stdout
+  annotateIO opts stdin stdout

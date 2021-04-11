@@ -3,10 +3,12 @@
 
 module Annodate
   ( Color(..)
+  , Options(..)
   , annotateLineIO
   , annotateIO
   ) where
 
+import Control.Applicative ((<|>))
 import Control.Exception (tryJust)
 import Control.Monad (guard)
 import Data.Text (Text, pack)
@@ -17,6 +19,12 @@ import GHC.IO.Handle (Handle)
 import Prelude hiding (concat, putStrLn)
 import System.Console.ANSI
 import System.IO.Error (isEOFError)
+
+data Options = Options
+  { optsColor :: Maybe Color
+  , optsNoColor :: Bool
+  , optsFormat :: String
+  }
 
 type DateFormat = String
 
@@ -33,11 +41,12 @@ annotateLineIO format color line output = do
   setColor output Nothing
   hPutStrLn output $ ": " <> line
 
-annotateIO :: DateFormat -> Maybe Color -> Handle -> Handle -> IO ()
-annotateIO format color input output = do
+annotateIO :: Options -> Handle -> Handle -> IO ()
+annotateIO opts input output = do
   content <- tryJust (guard . isEOFError) (hGetLine input)
   case content of
     Left  _    -> return ()
     Right line -> do
-      annotateLineIO format color line output
-      annotateIO format color input output
+      let color = optsColor opts <|> if optsNoColor opts then Nothing else Just Magenta
+      annotateLineIO (optsFormat opts) color line output
+      annotateIO opts input output
