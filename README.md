@@ -30,3 +30,4 @@ Available options:
 ...
 ```
 
+![annodate-ping](https://user-images.githubusercontent.com/148158/114354132-1c64ad80-9b6e-11eb-8e31-413b09e402d0.gif)
