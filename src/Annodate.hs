@@ -6,13 +6,13 @@ module Annodate
 
 import Control.Applicative ((<|>))
 import Control.Concurrent (threadDelay, killThread, forkIO, newMVar, modifyMVar_, withMVar)
-import Control.Exception (tryJust, bracket)
+import Control.Exception (tryJust, bracket, bracket_)
 import Control.Monad (guard, forever, when)
 import Data.Text (Text, pack)
 import Data.Text.IO (hGetLine, hPutStr, hPutStrLn)
 import Data.Time (defaultTimeLocale, formatTime)
 import Data.Time.LocalTime (getZonedTime)
-import GHC.IO.Handle (BufferMode(NoBuffering), Handle, hIsTerminalDevice, hSetBuffering)
+import GHC.IO.Handle (BufferMode(NoBuffering, LineBuffering), Handle, hIsTerminalDevice, hSetBuffering)
 import Prelude hiding (getLine, concat, putStrLn)
 import System.Console.ANSI
 import System.IO.Error (isEOFError)
@@ -75,14 +75,13 @@ annotateIO opts input output = do
             onDone = hPutStrLn output . inactivityMessage
         withInactivity (optsPauseThreshold opts) onInactive onDone getLine
       else do
-        let onInactive duration = do
+        let setBuffering = hSetBuffering output
+        let onInactive duration = bracket_ (setBuffering NoBuffering) (setBuffering LineBuffering) $ do
               hPutStr output "\r"
               setColor output (Just White)
               hPutStr output (inactivityMessage duration)
             onDone = const $ hPutStrLn output ""
-        withInactivity (optsPauseThreshold opts) onInactive onDone $ do
-          hSetBuffering output NoBuffering
-          getLine
+        withInactivity (optsPauseThreshold opts) onInactive onDone getLine
 
   case content of
     Left  _    -> return ()
