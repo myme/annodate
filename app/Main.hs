@@ -23,6 +23,12 @@ optionsParser = Options
                 <> value "%F %T"
                 <> help "Specify timestamp format (strftime)"
                 )
+  <*> (option auto
+                (  long "inactivity-timeout"
+                <> short 'i'
+                <> value 5
+                <> help "Threshold for pause in the input in seconds"
+                ))
   <*> switch (long "no-pause" <> short 'P' <> help "Disable showing pauses in the input")
 
 main :: IO ()
