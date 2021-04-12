@@ -44,16 +44,17 @@ withInactivity :: Int -> (Int -> IO ()) -> (Int -> IO ()) -> IO a -> IO a
 withInactivity threshold onTick onDone action = do
   inactivity <- newMVar 0
 
+  let callbackIf f x = when (x >= threshold) $ f x
   let inactiveTimer = forkIO $ forever $ do
         threadDelay 1000000
         modifyMVar_ inactivity $ \i -> do
           let newVal = i + 1
-          when (newVal >= threshold) $ onTick newVal
+          callbackIf onTick newVal
           pure newVal
 
   bracket inactiveTimer killThread $ \_ -> do
     result <- action
-    withMVar inactivity $ \i -> when (i > 0) (onDone i)
+    withMVar inactivity $ callbackIf onDone
     pure result
 
 inactivityMessage :: Int -> Text
