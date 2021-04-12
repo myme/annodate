@@ -23,7 +23,7 @@ library
   extensions:          LambdaCase
                      , OverloadedStrings
 
-executable annodate
+executable ad
   hs-source-dirs:      app
   main-is:             Main.hs
   ghc-options:         -Wall -Werror
