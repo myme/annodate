@@ -80,6 +80,7 @@ annotateIO opts input output = do
               hPutStr output "\r"
               setColor output (Just White)
               hPutStr output (inactivityMessage duration)
+              setColor output Nothing
             onDone = const $ hPutStrLn output ""
         withInactivity (optsPauseThreshold opts) onInactive onDone getLine
 
