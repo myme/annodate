@@ -1,10 +1,11 @@
 {
-  pkgs ? import ./nixpkgs.nix {},
-  haskellPackages ? pkgs.haskellPackages,
+  lib,
+  haskellPackages,
+  nix-gitignore,
 }:
 
 let
-  gitignore = pkgs.nix-gitignore.gitignoreSourcePure [ ./.gitignore ];
+  gitignore = nix-gitignore.gitignoreSourcePure [ ./.gitignore ];
   src = gitignore ./.;
 
 in haskellPackages.mkDerivation {
@@ -21,5 +22,5 @@ in haskellPackages.mkDerivation {
     text
     time
   ];
-  license = pkgs.lib.licenses.mit;
+  license = lib.licenses.mit;
 }
