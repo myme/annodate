@@ -23,6 +23,7 @@
       packages = _: [ pkgs.haskellPackages.annodate ];
       buildInputs = (with pkgs; [
         cabal-install
+        haskell-language-server
         hlint
       ]) ++ (with pkgs.haskellPackages; [
         ghcid
