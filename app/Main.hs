@@ -1,7 +1,25 @@
-import Annodate
+import Annodate ( annotateIO, Options(Options), Color )
 import Data.Char (toUpper, toLower)
 import GHC.IO.Handle
+    ( hSetBinaryMode, hSetBuffering, BufferMode(NoBuffering) )
 import Options.Applicative
+    ( optional,
+      (<**>),
+      auto,
+      eitherReader,
+      fullDesc,
+      help,
+      info,
+      long,
+      option,
+      progDesc,
+      short,
+      strOption,
+      switch,
+      value,
+      execParser,
+      helper,
+      Parser )
 import System.IO (stdin, stdout)
 import Text.Read (readMaybe)
 

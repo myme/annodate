@@ -15,6 +15,11 @@ import Data.Time.LocalTime (getZonedTime)
 import GHC.IO.Handle (BufferMode(NoBuffering, LineBuffering), Handle, hIsTerminalDevice, hSetBuffering)
 import Prelude hiding (getLine, concat, putStrLn)
 import System.Console.ANSI
+    ( Color(..),
+      ColorIntensity(Dull),
+      ConsoleLayer(Foreground),
+      SGR(SetColor, Reset),
+      hSetSGR )
 import System.IO.Error (isEOFError)
 
 data Options = Options
