@@ -7,6 +7,8 @@
     let
       system = "x86_64-linux";
       overlay = final: prev: {
+        annodate = prev.haskell.lib.compose.justStaticExecutables
+          final.haskellPackages.annodate;
         haskellPackages = prev.haskellPackages // {
           annodate = prev.haskellPackages.callPackage ./. { };
         };
@@ -15,13 +17,11 @@
         inherit system;
         overlays = [ overlay ];
       };
-      inherit (pkgs.haskell.lib.compose) justStaticExecutables;
     in {
 
       inherit overlay;
 
-      defaultPackage.${system} =
-        justStaticExecutables pkgs.haskellPackages.annodate;
+      defaultPackage.${system} = pkgs.annodate;
 
       devShell.${system} = pkgs.haskellPackages.shellFor {
         withHoogle = true;
