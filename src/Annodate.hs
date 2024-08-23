@@ -25,11 +25,11 @@ import System.IO.Error (isEOFError)
 import Prelude hiding (concat, getLine, putStrLn)
 
 data Options = Options
-  { optsColor :: Maybe Color,
-    optsNoColor :: Bool,
-    optsFormat :: String,
-    optsPauseThreshold :: Int,
-    optsNoCountPause :: Bool
+  { optsColor :: !(Maybe Color),
+    optsNoColor :: !Bool,
+    optsFormat :: !String,
+    optsPauseThreshold :: !Int,
+    optsNoCountPause :: !Bool
   }
 
 type DateFormat = String
