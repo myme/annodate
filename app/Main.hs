@@ -28,10 +28,18 @@ import System.IO (stdin, stdout)
 import Text.Read (readMaybe)
 
 parseColor :: String -> Either String Color
-parseColor color = maybe (Left $ "Invalid color: " <> color) Right $ readMaybe (capitalize color)
+parseColor color = case readMaybe color :: Maybe Int of
+    Just idx -> if idx >= length colors
+        then Left $ "Invalid color index (0-7): " <> show idx
+        else Right (colors !! idx)
+    Nothing -> case readMaybe (capitalize color) of
+        Just c -> Right c
+        Nothing -> Left $ "Invalid color: " <> color
   where
     capitalize (x : xs) = toUpper x : map toLower xs
     capitalize [] = []
+    colors :: [Color]
+    colors = [minBound ..]
 
 optionsParser :: Parser Options
 optionsParser =
