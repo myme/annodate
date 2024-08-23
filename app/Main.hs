@@ -1,4 +1,4 @@
-import Annodate (Color, Options (Options), annotateIO)
+import Annodate (Color (..), Options (..), annotateIO)
 import Data.Char (toLower, toUpper)
 import GHC.IO.Handle
   ( BufferMode (NoBuffering),
@@ -26,6 +26,7 @@ import Options.Applicative
   )
 import System.IO (stdin, stdout)
 import Text.Read (readMaybe)
+import System.Random (randomRIO)
 
 parseColor :: String -> Either String Color
 parseColor color = case readMaybe color :: Maybe Int of
@@ -69,6 +70,12 @@ optionsParser =
         )
     <*> switch (long "no-pause" <> short 'P' <> help "Disable showing pauses in the input")
 
+randomColor :: IO Color
+randomColor = do
+    let colors = filter (not . (`elem` [Black, White])) [minBound :: Color ..]
+    idx <- randomRIO (0, length colors - 1)
+    pure (colors !! idx)
+
 main :: IO ()
 main = do
   opts <-
@@ -77,4 +84,12 @@ main = do
         `info` (fullDesc <> progDesc "Annodate - Prepend timestamps to stdio")
   hSetBinaryMode stdin False
   hSetBuffering stdin NoBuffering
-  annotateIO opts stdin stdout
+
+  color <- if opts.optsNoColor
+    then pure Nothing
+    else
+        case opts.optsColor of
+            Nothing -> Just <$> randomColor
+            Just color -> pure $ Just color
+
+  annotateIO (opts { optsColor = color }) stdin stdout

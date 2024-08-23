@@ -6,6 +6,7 @@
   old-locale,
   optparse-applicative,
   process,
+  random,
   text,
   time,
 }:
@@ -23,6 +24,7 @@ in mkDerivation {
     old-locale
     optparse-applicative
     process
+    random
     text
     time
   ];
