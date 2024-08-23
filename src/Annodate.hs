@@ -39,13 +39,19 @@ setColor handle = \case
   Nothing -> hSetSGR handle [Reset]
   Just c -> hSetSGR handle [SetColor Foreground Dull c]
 
+printColored :: Handle -> Maybe Color -> Text -> IO ()
+printColored handle color text = case color of
+    Nothing -> hPutStr handle text
+    Just c -> do
+      setColor handle (Just c)
+      hPutStr handle text
+      setColor handle Nothing
+
 printAnnotatedLine :: DateFormat -> Maybe Color -> Text -> Handle -> IO ()
 printAnnotatedLine format color line output = do
   time <- getZonedTime
-  setColor output color
-  hPutStr output $ pack $ formatTime defaultTimeLocale format time
-  setColor output Nothing
-  hPutStrLn output $ ": " <> line
+  printColored output color (pack $ formatTime defaultTimeLocale format time)
+  hPutStrLn output line
 
 withInactivity :: Int -> (Int -> IO ()) -> (Int -> IO ()) -> IO a -> IO a
 withInactivity threshold onTick onDone action = do

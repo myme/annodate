@@ -48,8 +48,8 @@ optionsParser =
     <*> strOption
       ( long "format"
           <> short 'f'
-          <> value "%F %T"
-          <> help "Specify timestamp format (strftime)"
+          <> value "%FT%T.%9qZ "
+          <> help "Timestamp format (strftime, default: %FT%T%QZ)"
       )
     <*> ( option
             auto
